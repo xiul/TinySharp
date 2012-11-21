@@ -1,0 +1,13 @@
+{ Programa de Ejemplo
+  en el lenguaje TINY -
+  calcula el factorial
+}
+read x; { ingrese un numero entero }
+if 0 < x then { no calcule si x <= 0 }
+    fact := 1;
+    repeat
+        fact := fact * x;
+        x := x - 1
+    until x = 0;
+    write fact  { escriba en pantalla el factorial de x }
+end

@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9875AB52-7536-44DE-AEE7-18B884E29647}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TinyCompiler</RootNamespace>
+    <AssemblyName>TinyCompiler</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ast\Asignacion.cs" />
+    <Compile Include="ast\Condicional.cs" />
+    <Compile Include="ast\Division.cs" />
+    <Compile Include="ast\Expresion.cs" />
+    <Compile Include="ast\ExpresionBinaria.cs" />
+    <Compile Include="ast\FuncionDef.cs" />
+    <Compile Include="ast\Igual.cs" />
+    <Compile Include="ast\ListaParametros.cs" />
+    <Compile Include="ast\ListaParamFormal.cs" />
+    <Compile Include="ast\ListaSentencia.cs" />
+    <Compile Include="ast\LLamadaFuncion.cs" />
+    <Compile Include="ast\Menor.cs" />
+    <Compile Include="ast\Multiplicacion.cs" />
+    <Compile Include="ast\NodoArbol.cs" />
+    <Compile Include="ast\NodoLista.cs" />
+    <Compile Include="ast\NumeroEntero.cs" />
+    <Compile Include="ast\ParamFormal.cs" />
+    <Compile Include="ast\Programa.cs" />
+    <Compile Include="ast\RepitaHasta.cs" />
+    <Compile Include="ast\Resta.cs" />
+    <Compile Include="ast\Sentencia.cs" />
+    <Compile Include="ast\Suma.cs" />
+    <Compile Include="ast\Variable.cs" />
+    <Compile Include="cup\lr_parser.cs" />
+    <Compile Include="cup\Scanner.cs" />
+    <Compile Include="cup\Symbol.cs" />
+    <Compile Include="cup\virtual_parse_stack.cs" />
+    <Compile Include="generador\GeneradorCodigo.cs" />
+    <Compile Include="semantica\AnalizadorSemantico.cs" />
+    <Compile Include="semantica\SemantErrorReport.cs" />
+    <Compile Include="tabla\TablaSimbolos.cs" />
+    <Compile Include="tabla\ArrayStack.cs" />
+    <Compile Include="tiny\tiny.cs" />
+    <Compile Include="parser\TinyParser.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>tiny.cup</DependentUpon>
+    </Compile>
+    <Compile Include="parser\TokenDef.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>tiny.cup</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="util\FuncionesEstandar.cs" />
+    <Compile Include="util\NucleoLenguaje.cs" />
+    <Compile Include="util\UtilidadCMD.cs" />
+    <Compile Include="util\Utilidades.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <CsLex Include="lexer\TinyLexer.flex">
+      <OutputFiles>TinyLexer.flex.cs</OutputFiles>
+    </CsLex>
+    <Compile Include="lexer\TinyLexer.flex.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TinyLexer.flex</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <CsCup Include="parser\tiny.cup">
+      <OutputFiles>TinyParser.cs;TokenDef.cs</OutputFiles>
+      <OutputPath>parser</OutputPath>
+    </CsCup>
+    <Compile Include="tabla\TablaEntero.cs" />
+    <Compile Include="tabla\SimboloEntero.cs" />
+    <Compile Include="tabla\SimboloAbstracto.cs" />
+    <Compile Include="tabla\SimboloId.cs" />
+    <Compile Include="tabla\SimboloTexto.cs" />
+    <Compile Include="tabla\TablaAbstracta.cs" />
+    <Compile Include="tabla\TablaId.cs" />
+    <Compile Include="tabla\TablaTexto.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="programas\factorial.tny" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <UseHostCompilerIfAvailable>False</UseHostCompilerIfAvailable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <CsLexCupToolPath>$(MSBuildProjectDirectory)\..\jflex_cup</CsLexCupToolPath>
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateCslexCode</CoreCompileDependsOn>
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateCscupCode</CoreCompileDependsOn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <Target Name="GenerateCsLexCode" Inputs="@(CsLex)" Outputs="%(CsLex.OutputFiles)">
+    <Message Importance="normal" Text="C#Lex: Transforming '@(CsLex)' to '%(CsLex.OutputFiles)'" />
+    <Exec Command="$(CsLexCupToolPath)\C#Lex.exe %22%(RootDir)%(Directory)..\@(CsLex)%22" Outputs="%(CsLex.OutputFiles)" />
+  </Target>
+  <Target Name="GenerateCscupCode" Inputs="@CsCup" Outputs="%(CsCup.OutputFiles)">
+    <Message Importance="normal" Text="C#Cup: Transforming '@(CsCup)' to '%(CsCup.OutputFiles)'" />
+    <Exec Command="$(CsLexCupToolPath)\C#Cup.exe -parser TinyParser -expect 1000 -nopositions -symbols TokenDef  %22%(RootDir)%(Directory)..\@(CsCup)%22" Outputs="%(CsCup.OutputFiles)" />
+    <CreateItem Include="$(ProjectDir)\*.cs">
+      <Output TaskParameter="Include" ItemName="SourceFiles" />
+    </CreateItem>
+    <Move SourceFiles="@(SourceFiles)" DestinationFolder="%(CsCup.OutputPath)" />
+  </Target>
+</Project>

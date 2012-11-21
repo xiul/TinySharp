@@ -1,0 +1,242 @@
+// Especificación sintáctica en CUP para el lenguaje tiny
+/**
+tiny.cup
+
+ Copyrigth (C) 2012: 
+ Ochoa, Luis lochoa (at unet.edu.ve)
+ Sanchez, Manuel mbsanchez (at unet.edu.ve)
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ MA 02110-1301 USA
+ */
+namespace TinyCompiler.parser;
+using TUVienna.CS_CUP;
+using TUVienna.CS_CUP.Runtime;
+using TinyCompiler.tabla;
+using System.Collections;
+using TinyCompiler.util;
+using TinyCompiler.ast;
+
+action code {: 
+
+    public int getLinea() {
+		return ((TinyLexer)my_parser.getScanner()).getLinea();
+    }
+
+    public int getColumna(){
+        return ((TinyLexer)my_parser.getScanner()).getColumna();
+    }
+
+    public SimboloAbstracto getNombreArchivo() {
+		return ((TinyLexer)my_parser.getScanner()).getNombreArchivo();
+    }
+:} 
+
+parser code {:
+    int omerrs = 0;
+
+    public int getOmerrs(){
+        return omerrs;
+    }
+
+    public override void syntax_error(Symbol cur_token) {
+        int lineno = action_obj.getLinea();
+        int column = action_obj.getColumna();
+		string filename = action_obj.getNombreArchivo().Texto;
+        System.Console.Error.Write(filename + ": " + lineno 
+		         + ":" + column + ": error de sintáxis cerca de ");
+        Utilidades.imprimirToken(cur_token);
+		omerrs++;
+		if (omerrs>50) {
+			System.Console.Error.Write("El análisis se ha detenido porque se encontraron muchos errores");
+			System.Environment.Exit(1);
+		}
+    }
+
+    public override void unrecovered_syntax_error(Symbol cur_token)
+	{
+    }
+
+	public override void report_fatal_error(string   message, object   info)
+	{
+		Utilidades.fatalError("ha ocurrido un error irrecuperable");
+	}
+:}
+
+terminal SimboloAbstracto SUMA, RESTA, DIVISION, MULTIPLICACION, PUNTO_Y_COMA, COMA;
+terminal SimboloAbstracto MENOR, IGUAL, PARENT_IZQ, PARENT_DER, ASIGNACION;
+terminal SimboloAbstracto LIT_ENTERO, IDENTIFICADOR;
+terminal SimboloAbstracto SI, ENTONCES, SINO, FIN, REPITA, HASTA, ERROR;
+
+nonterminal Programa programa;
+nonterminal ListaSentencia secuencia_sent;
+nonterminal Sentencia sent;
+nonterminal Sentencia sent_if;
+nonterminal Sentencia sent_repeat;
+nonterminal Sentencia sent_assign;
+nonterminal Sentencia fuction_call;
+nonterminal ListaParametros opt_args;
+nonterminal ListaParametros args;
+nonterminal Expresion exp;
+nonterminal Expresion exp_simple;
+nonterminal Expresion term;
+nonterminal Expresion factor;
+
+start with programa;
+
+programa 
+    ::= secuencia_sent:sc
+    {:
+        RESULT = new Programa(sc, 1, 0);
+    :}
+    ;
+
+secuencia_sent 
+    ::= secuencia_sent:sc PUNTO_Y_COMA sent:s
+    {:
+        sc.agregarElemento(s);
+        RESULT = sc;
+    :}
+    | sent:s 
+    {:
+        RESULT = new ListaSentencia();
+        RESULT.agregarElemento(s);
+    :}
+    ;
+
+sent 
+    ::= sent_if:s {: RESULT = s; :}
+    | sent_repeat:s {: RESULT = s; :}
+    | sent_assign:s {: RESULT = s; :}
+    | fuction_call:s {: RESULT = s; :}
+	| error
+    ;
+
+sent_if 
+    ::= SI:s exp:c ENTONCES secuencia_sent:en FIN
+    {:
+        RESULT = new Condicional(c, en, null, s.Linea, s.Columna);
+    :}
+    | SI:s exp:c ENTONCES secuencia_sent:en SINO secuencia_sent:sn FIN
+    {:
+        RESULT = new Condicional(c, en, sn, s.Linea, s.Columna);
+    :}
+    ;
+
+sent_repeat 
+    ::= REPITA:r secuencia_sent:s HASTA exp:c
+    {:
+        RESULT = new RepitaHasta(c, s, r.Linea, r.Columna);
+    :}
+    ;
+
+sent_assign 
+    ::= IDENTIFICADOR:id ASIGNACION:a exp:e
+    {:
+        RESULT = new Asignacion(new Variable(id, id.Linea, id.Columna), e, a.Linea, a.Columna);
+    :}
+    ;
+
+fuction_call
+    ::= IDENTIFICADOR:id opt_args:p
+    {:
+        RESULT = new LLamadaFuncion(id, p, id.Linea, id.Columna);
+    :}
+    ;
+
+opt_args
+    ::= args:p
+    {:
+        RESULT = p;
+    :}
+    | 
+    {:
+        RESULT = new ListaParametros();
+    :}
+    ;
+
+args
+    ::= exp:e
+    {:
+        RESULT = new ListaParametros();
+        RESULT.agregarElemento(e);
+    :}
+    | args:p COMA exp:e
+    {:
+        p.agregarElemento(e);
+        RESULT = p;
+    :}
+    ;
+
+exp 
+    ::= exp_simple:e1 MENOR:m exp_simple:e2 
+    {:
+        RESULT = new Menor(e1, e2, m.Linea, m.Columna);
+    :}
+    | exp_simple:e1 IGUAL:i exp_simple:e2
+    {:
+        RESULT = new Igual(e1, e2, i.Linea, i.Columna);
+    :} 
+    | exp_simple:e
+    {:
+        RESULT = e;
+    :}
+    ;
+
+exp_simple
+    ::= exp_simple:e1 SUMA:s term:e2
+    {:
+        RESULT = new Suma(e1, e2, s.Linea, s.Columna);
+    :}
+    | exp_simple:e1 RESTA:r term:e2
+    {:
+        RESULT = new Resta(e1, e2, r.Linea, r.Columna);
+    :}
+    | term:e
+    {:
+        RESULT = e;
+    :}
+    ;
+
+term   
+    ::= term:e1 MULTIPLICACION:m factor:e2
+    {:
+        RESULT = new Multiplicacion(e1, e2, m.Linea, m.Columna);
+    :}
+    | term:e1 DIVISION:d factor:e2
+    {:
+        RESULT = new Division(e1, e2, d.Linea, d.Columna);
+    :}
+    | factor:e
+    {:
+        RESULT = e;
+    :}
+    ;
+
+factor 
+    ::= PARENT_IZQ exp:e PARENT_DER
+    {:
+        RESULT = e;
+    :}
+    | LIT_ENTERO:val
+    {:
+        RESULT = new NumeroEntero(val, val.Linea, val.Columna);
+    :}
+    | IDENTIFICADOR:id
+    {:
+        RESULT = new Variable(id, id.Linea, id.Columna);
+    :}
+    | error
+    ;
