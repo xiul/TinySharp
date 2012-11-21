@@ -121,8 +121,17 @@ namespace TinyCompiler.generador
             il.Emit(Emit.OpCodes.Nop);
         }
 
+        private void anadirPausa()
+        {
+            il.Emit(Emit.OpCodes.Ldstr,"Finalizada la ejecucion presione cualquier tecla para continuar...");
+            il.Emit(Emit.OpCodes.Call, typeof(System.Console).GetMethod("WriteLine", new System.Type[] { typeof(System.String) }));
+            il.Emit(Emit.OpCodes.Call, typeof(System.Console).GetMethod("ReadLine", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static, null, new System.Type[] { }, null));
+        }
+
         private void finalizar(string nombreEjecutable)
         {
+            //Asigno una pausa para indicar que finalizo la ejecucion del codigo objetivo generado
+            anadirPausa();
             //Creo el assembler .net y defino las ultimas opciones de configuracion
             il.Emit(Emit.OpCodes.Ret);
             Type pp = typeBuilder.CreateType();
